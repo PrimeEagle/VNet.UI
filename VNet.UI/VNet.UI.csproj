@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Avalonia\Models\" />
     <Folder Include="Avalonia\Assets\" />
     <Folder Include="Avalonia\ViewModels\" />
-    <Folder Include="Avalonia\Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.5" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
