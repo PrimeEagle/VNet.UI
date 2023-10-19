@@ -9,7 +9,7 @@ public class SimpleTypeReflectionStrategy : IReflectionStrategy
         return type.IsPrimitive || type == typeof(string);
     }
 
-    public object ReflectProperty(object instance, PropertyInfo property)
+    public object? ReflectProperty(object instance, PropertyInfo property)
     {
         return property.GetValue(instance);
     }

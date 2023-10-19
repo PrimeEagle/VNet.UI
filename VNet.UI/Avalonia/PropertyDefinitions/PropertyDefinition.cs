@@ -1,6 +1,7 @@
 ﻿using VNet.UI.Avalonia.CategoryDefinitions;
 using VNet.UI.Avalonia.PropertyEditors;
 using VNet.UI.Avalonia.ReflectionStrategies;
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace VNet.UI.Avalonia.PropertyDefinitions;
 
@@ -18,6 +19,7 @@ public class PropertyDefinition : IPropertyDefinition
         Editor = editor;
         UpdateModelFromControl = updateModelFromControl;
         UpdateControlFromModel = updateControlFromModel;
+        Category = new Uncategorized();
     }
 
     public IPropertyEditor CreateEditor()

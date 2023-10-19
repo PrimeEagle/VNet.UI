@@ -11,6 +11,8 @@ public interface IPropertyDefinition
     bool UpdateModelFromControl { get; }
     bool UpdateControlFromModel { get; }
     ICategoryDefinition Category { get; }
-    IPropertyEditor CreateEditor();
     int DisplayOrder { get; }
+
+
+    IPropertyEditor CreateEditor();
 }
