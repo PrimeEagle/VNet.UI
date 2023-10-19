@@ -15,6 +15,12 @@
     <PackageReference Include="Avalonia" Version="11.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Avalonia\Views\PropertyGrid.axaml.cs">
+      <DependentUpon>PropertyGrid.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /e /y &quot;$(TargetPath)&quot; &quot;D:\My Code\VNet bin\&quot;" />
   </Target>
