@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace VNet.UI.Avalonia.Models;
+namespace VNet.UI.Avalonia.ReflectionStrategies;
 
 public interface IReflectionStrategy
 {

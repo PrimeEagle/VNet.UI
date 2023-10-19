@@ -1,8 +1,11 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Layout;
 using System.ComponentModel;
 using System.Reflection;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using VNet.UI.Avalonia.CategoryDefinitions;
+using VNet.UI.Avalonia.PropertyDefinitions;
+using VNet.UI.Avalonia.PropertyEditors;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global
@@ -17,12 +20,12 @@ using System.Reflection;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #pragma warning disable CS8603 // Possible null reference return.
 
-namespace VNet.UI.Avalonia.Models
+namespace VNet.UI.Avalonia.Controls
 {
-    public class PropertyGrid : UserControl
+    public partial class PropertyGrid : UserControl
     {
         private readonly Dictionary<Type, IPropertyDefinition> _propertyDefinitions = new();
-        private readonly Dictionary<string, IPropertyGridEditor> _propertyEditors = new();
+        private readonly Dictionary<string, IPropertyEditor> _propertyEditors = new();
         private readonly StackPanel _propertyPanel = new() { Orientation = Orientation.Vertical };
         private object? _currentObject;
         private List<PropertyInfo> _originalProperties;
@@ -60,6 +63,7 @@ namespace VNet.UI.Avalonia.Models
 
         public PropertyGrid()
         {
+            InitializeComponent();
             Content = new ScrollViewer { Content = _propertyPanel };
         }
 
@@ -102,7 +106,7 @@ namespace VNet.UI.Avalonia.Models
             var categorizedProperties = properties.GroupBy(GetPropertyCategory);
             var sortedCategorizedProperties = CategorySorting switch
             {
-                CategorySortingMode.Alphabetical => categorizedProperties.OrderBy(x => x.Key.CategoryName),
+                CategorySortingMode.Alphabetical => categorizedProperties.OrderBy(x => x.Key.Name),
                 CategorySortingMode.DisplayOrder => categorizedProperties.OrderBy(x => x.Key.DisplayOrder),
                 _ => categorizedProperties
             };
@@ -138,7 +142,7 @@ namespace VNet.UI.Avalonia.Models
 
         private void OnEditorValueChanged(object sender, EventArgs e)
         {
-            var editor = (IPropertyGridEditor)sender;
+            var editor = (IPropertyEditor)sender;
             var propertyName = editor.Tag as string;
 
             var property = _currentObject?.GetType().GetProperty(propertyName);
@@ -168,7 +172,7 @@ namespace VNet.UI.Avalonia.Models
             editor.Value = currentValue;
         }
 
-        private void AddEditorToPropertyGrid(IPropertyGridEditor editor, PropertyInfo property)
+        private void AddEditorToPropertyGrid(IPropertyEditor editor, PropertyInfo property)
         {
             var panel = new StackPanel { Orientation = Orientation.Horizontal };
             var label = new TextBlock { Text = property.Name, Width = 150 };

@@ -1,22 +1,26 @@
-﻿namespace VNet.UI.Avalonia.Models;
+﻿using VNet.UI.Avalonia.CategoryDefinitions;
+using VNet.UI.Avalonia.PropertyEditors;
+using VNet.UI.Avalonia.ReflectionStrategies;
+
+namespace VNet.UI.Avalonia.PropertyDefinitions;
 
 public class PropertyDefinition : IPropertyDefinition
 {
-    public IPropertyGridEditor Editor { get; private set; }
+    public IPropertyEditor Editor { get; private set; }
     public bool UpdateModelFromControl { get; private set; }
     public bool UpdateControlFromModel { get; private set; }
     public ICategoryDefinition Category { get; }
     public int DisplayOrder { get; }
     public IReflectionStrategy ReflectionStrategy => throw new NotImplementedException();
 
-    public PropertyDefinition(IPropertyGridEditor editor, bool updateModelFromControl, bool updateControlFromModel)
+    public PropertyDefinition(IPropertyEditor editor, bool updateModelFromControl, bool updateControlFromModel)
     {
         Editor = editor;
         UpdateModelFromControl = updateModelFromControl;
         UpdateControlFromModel = updateControlFromModel;
     }
 
-    public IPropertyGridEditor CreateEditor()
+    public IPropertyEditor CreateEditor()
     {
         throw new NotImplementedException();
     }

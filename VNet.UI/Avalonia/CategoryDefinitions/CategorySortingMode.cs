@@ -1,4 +1,4 @@
-﻿namespace VNet.UI.Avalonia.Models;
+﻿namespace VNet.UI.Avalonia.CategoryDefinitions;
 
 public enum CategorySortingMode
 {

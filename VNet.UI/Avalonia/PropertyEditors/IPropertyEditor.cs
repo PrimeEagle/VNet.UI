@@ -1,8 +1,8 @@
 ﻿using Avalonia.Controls;
 
-namespace VNet.UI.Avalonia.Models;
+namespace VNet.UI.Avalonia.PropertyEditors;
 
-public interface IPropertyGridEditor
+public interface IPropertyEditor
 {
     object Value { get; set; }
     event EventHandler ValueChanged;

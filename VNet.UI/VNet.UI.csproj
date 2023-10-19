@@ -7,16 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Avalonia\Assets\" />
-    <Folder Include="Avalonia\ViewModels\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Avalonia\Views\PropertyGrid.axaml.cs">
+    <Compile Update="Avalonia\Controls\PreferenceTabs.axaml.cs">
+      <DependentUpon>PreferenceTabs.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Avalonia\Controls\PropertyGrid.axaml.cs">
       <DependentUpon>PropertyGrid.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
