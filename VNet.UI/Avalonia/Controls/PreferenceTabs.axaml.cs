@@ -3,10 +3,13 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using VNet.Configuration.Attributes;
 using VNet.UI.Avalonia.CategoryDefinitions;
 using VNet.UI.Avalonia.PropertyDefinitions;
 using VNet.UI.Avalonia.PropertyEditors;
+using VNet.UI.Avalonia.ReflectionStrategies;
 
+// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedParameter.Local
@@ -40,7 +43,7 @@ namespace VNet.UI.Avalonia.Controls
                 nameof(CurrentObject),
                 o => o.CurrentObject,
                 (o, v) => o.CurrentObject = v);
-
+        public int RecursionDepth { get; set; } = 0;
         public object? CurrentObject
         {
             get => _currentObject;
@@ -78,23 +81,23 @@ namespace VNet.UI.Avalonia.Controls
         {
             _propertyPanel.Children.Clear();
 
-            //if (objectToReflect is not T)
-            //{
-            //    return;
-            //}
-
             var properties = objectToReflect.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
 
             if (Recursive)
             {
-                properties = GetPropertiesRecursively(objectToReflect, properties);
+                properties = GetPropertiesRecursively(objectToReflect, properties, 1);
             }
             _originalProperties = properties;
             GeneratePropertyItems(objectToReflect, properties);
         }
 
-        private List<PropertyInfo> GetPropertiesRecursively(object obj, List<PropertyInfo> properties)
+        private List<PropertyInfo> GetPropertiesRecursively(object obj, List<PropertyInfo> properties, int currentDepth)
         {
+            if (RecursionDepth != 0 && currentDepth >= RecursionDepth)
+            {
+                return properties;
+            }
+
             var allProperties = new List<PropertyInfo>(properties);
 
             foreach (var property in properties)
@@ -105,12 +108,13 @@ namespace VNet.UI.Avalonia.Controls
                 var propertyValue = property.GetValue(obj);
                 if (propertyValue == null) continue;
                 var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
-                allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties));
+
+                allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));
             }
 
             return allProperties;
         }
-
+        
         private IEnumerable<PropertyInfo> GetSortedProperties(object targetObject)
         {
             return targetObject.GetType().GetProperties().OrderBy(p => p.Name);
@@ -138,8 +142,12 @@ namespace VNet.UI.Avalonia.Controls
             var categorizedProperties = properties.GroupBy(GetPropertyCategory);
             var sortedCategorizedProperties = CategorySorting switch
             {
-                CategorySortingMode.Alphabetical => categorizedProperties.OrderBy(x => x.Key.Name),
-                CategorySortingMode.DisplayOrder => categorizedProperties.OrderBy(x => x.Key.DisplayOrder),
+                CategorySortingMode.Alphabetical =>
+                    categorizedProperties.OrderBy(categoryGroup => categoryGroup.Key.Name),
+
+                CategorySortingMode.DisplayOrder =>
+                    categorizedProperties.OrderBy(categoryGroup => categoryGroup.Key.DisplayOrder),
+
                 _ => categorizedProperties
             };
 
@@ -149,41 +157,53 @@ namespace VNet.UI.Avalonia.Controls
                 {
                     PropertySortingMode.Alphabetical => categoryGroup.OrderBy(x => x.Name),
                     PropertySortingMode.DisplayOrder => categoryGroup.OrderBy(GetPropertyDisplayOrder),
-                    _ => categoryGroup,
+                    _ => categoryGroup
                 };
 
                 foreach (var property in sortedProperties)
                 {
-                    if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition))
+                    var canUpdateModelFromControl = property.GetCustomAttribute<OnlyUpdateControlFromModelAttribute>() == null;
+                    var canUpdateControlFromModel = property.GetCustomAttribute<OnlyUpdateModelFromControlAttribute>() == null;
+
+                    if (!canUpdateModelFromControl && !canUpdateControlFromModel)
+                    {
                         continue;
+                    }
+
+                    if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition))
+                    {
+                        continue;
+                    }
 
                     var editor = definition.CreateEditor();
-                    var reflectedValue = definition.ReflectionStrategy.ReflectProperty(targetObject, property);
 
-                    editor.Value = reflectedValue;
+                    if (canUpdateControlFromModel)
+                    {
+                        var propertyValue = property.GetValue(targetObject);
+                        editor.Value = propertyValue;
+                    }
+
                     _propertyEditors[property.Name] = editor;
-
-                    editor.Tag = property.Name;
                     editor.ValueChanged -= OnEditorValueChanged;
-                    editor.ValueChanged += OnEditorValueChanged;
+
+                    if (canUpdateModelFromControl)
+                    {
+                        editor.ValueChanged += OnEditorValueChanged;
+                    }
 
                     AddEditorToPropertyGrid(editor, property);
                 }
             }
         }
-
+        
         private void OnEditorValueChanged(object sender, EventArgs e)
         {
             var editor = (IPropertyEditor)sender;
             var propertyName = editor.Tag as string;
-
             var property = _currentObject?.GetType().GetProperty(propertyName);
+
             if (property == null) return;
-
-            if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition)) return;
-
-            if (!definition.UpdateModelFromControl) return;
-
+            if (property.GetCustomAttribute<OnlyUpdateControlFromModelAttribute>() != null) return;
             if (!property.CanWrite)
             {
                 return;
@@ -196,10 +216,11 @@ namespace VNet.UI.Avalonia.Controls
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
             var property = sender.GetType().GetProperty(args.PropertyName);
+
             if (property == null) return;
-            if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition)) return;
-            if (!definition.UpdateControlFromModel) return;
+            if (property.GetCustomAttribute<OnlyUpdateModelFromControlAttribute>() != null) return;
             if (!_propertyEditors.TryGetValue(args.PropertyName, out var editor)) return;
+
             var currentValue = property.GetValue(sender);
             editor.Value = currentValue;
         }
@@ -218,13 +239,15 @@ namespace VNet.UI.Avalonia.Controls
 
         private ICategoryDefinition GetPropertyCategory(PropertyInfo property)
         {
+            var categoryAttribute = property.GetCustomAttribute<CategoryAttribute>();
+
             switch (CategoryType)
             {
                 case CategorizationType.ByClass:
                     return new CategoryByClassName(property.DeclaringType?.Name ?? "Unknown");
 
                 case CategorizationType.ByAttribute:
-                    if (property.GetCustomAttributes(typeof(CategoryAttribute), true).FirstOrDefault() is CategoryAttribute categoryAttribute)
+                    if (categoryAttribute != null)
                     {
                         return new CategoryByAttribute(categoryAttribute.Category);
                     }
@@ -232,15 +255,51 @@ namespace VNet.UI.Avalonia.Controls
 
                 case CategorizationType.None:
                 default:
-                    break;
+                    return new Uncategorized();
             }
 
-            return _propertyDefinitions.TryGetValue(property.PropertyType, out var definition) ? definition.Category : new Uncategorized();
+            return new Uncategorized();
         }
 
         private int GetPropertyDisplayOrder(PropertyInfo property)
         {
-            return _propertyDefinitions.TryGetValue(property.PropertyType, out var definition) ? definition.DisplayOrder : int.MaxValue;
+            var displayOrderAttr = property.GetCustomAttribute<DisplayOrderAttribute>();
+            return displayOrderAttr?.Order ?? int.MaxValue;
+        }
+
+        public void RegisterPrimitiveTypes()
+        {
+            var reflectionStrategy = new SimpleTypeReflectionStrategy();
+            var editor = new TextBoxPropertyEditor();
+
+            var types = new[]
+            {
+                typeof(bool),
+                typeof(byte),
+                typeof(sbyte),
+                typeof(char),
+                typeof(decimal),
+                typeof(double),
+                typeof(float),
+                typeof(int),
+                typeof(uint),
+                typeof(long),
+                typeof(ulong),
+                typeof(short),
+                typeof(ushort),
+                typeof(string)
+            };
+
+            foreach (var type in types)
+            {
+                var propertyDefinition = new PropertyDefinition
+                {
+                    Editor = editor,
+                    ReflectionStrategy = reflectionStrategy
+                };
+
+                RegisterPropertyDefinition(type, propertyDefinition);
+            }
         }
     }
 }

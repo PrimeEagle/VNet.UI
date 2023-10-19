@@ -3,6 +3,7 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using VNet.Configuration.Attributes;
 using VNet.UI.Avalonia.CategoryDefinitions;
 using VNet.UI.Avalonia.PropertyDefinitions;
 using VNet.UI.Avalonia.PropertyEditors;
@@ -106,8 +107,10 @@ namespace VNet.UI.Avalonia.Controls
             var categorizedProperties = properties.GroupBy(GetPropertyCategory);
             var sortedCategorizedProperties = CategorySorting switch
             {
-                CategorySortingMode.Alphabetical => categorizedProperties.OrderBy(x => x.Key.Name),
-                CategorySortingMode.DisplayOrder => categorizedProperties.OrderBy(x => x.Key.DisplayOrder),
+                CategorySortingMode.Alphabetical => categorizedProperties.OrderBy(x => x.Key), // x.Key is the category name itself if it's a string
+                // The line below won't work as expected because we don't have a 'DisplayOrder' field in the string.
+                // You need a more complex category representation to support ordering by display order.
+                //CategorySortingMode.DisplayOrder => categorizedProperties.OrderBy(x => x.Key.DisplayOrder), 
                 _ => categorizedProperties
             };
 
@@ -116,7 +119,8 @@ namespace VNet.UI.Avalonia.Controls
                 IEnumerable<PropertyInfo> sortedProperties = PropertySorting switch
                 {
                     PropertySortingMode.Alphabetical => categoryGroup.OrderBy(x => x.Name),
-                    PropertySortingMode.DisplayOrder => categoryGroup.OrderBy(GetPropertyDisplayOrder),
+                    // If you want to sort by display order, you would need a mechanism (like a custom attribute or a mapping table) to determine the order.
+                    //PropertySortingMode.DisplayOrder => categoryGroup.OrderBy(x => /* you need an ordering mechanism here */),
                     _ => categoryGroup,
                 };
 
@@ -140,6 +144,20 @@ namespace VNet.UI.Avalonia.Controls
             }
         }
 
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            var property = sender.GetType().GetProperty(args.PropertyName);
+            if (property == null) return;
+
+            var onlyUpdateModel = property.GetCustomAttribute<OnlyUpdateModelFromControlAttribute>() != null;
+            if (onlyUpdateModel) return;
+
+            if (!_propertyEditors.TryGetValue(args.PropertyName, out var editor)) return;
+
+            var currentValue = property.GetValue(sender);
+            editor.Value = currentValue;
+        }
+
         private void OnEditorValueChanged(object sender, EventArgs e)
         {
             var editor = (IPropertyEditor)sender;
@@ -148,9 +166,8 @@ namespace VNet.UI.Avalonia.Controls
             var property = _currentObject?.GetType().GetProperty(propertyName);
             if (property == null) return;
 
-            if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition)) return;
-
-            if (!definition.UpdateModelFromControl) return;
+            var onlyUpdateControl = property.GetCustomAttribute<OnlyUpdateControlFromModelAttribute>() != null;
+            if (onlyUpdateControl) return;
 
             if (!property.CanWrite)
             {
@@ -159,17 +176,6 @@ namespace VNet.UI.Avalonia.Controls
 
             var newValue = editor.Value;
             property.SetValue(_currentObject, newValue);
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
-        {
-            var property = sender.GetType().GetProperty(args.PropertyName);
-            if (property == null) return;
-            if (!_propertyDefinitions.TryGetValue(property.PropertyType, out var definition)) return;
-            if (!definition.UpdateControlFromModel) return;
-            if (!_propertyEditors.TryGetValue(args.PropertyName, out var editor)) return;
-            var currentValue = property.GetValue(sender);
-            editor.Value = currentValue;
         }
 
         private void AddEditorToPropertyGrid(IPropertyEditor editor, PropertyInfo property)
@@ -184,15 +190,23 @@ namespace VNet.UI.Avalonia.Controls
             _propertyPanel.Children.Add(panel);
         }
 
-        private ICategoryDefinition GetPropertyCategory(PropertyInfo property)
+        private string GetPropertyCategory(PropertyInfo property)
         {
-            return _propertyDefinitions.TryGetValue(property.PropertyType, out var definition) ? definition.Category : (ICategoryDefinition)
-                new Uncategorized();
-        }
+            var categoryAttribute = property.GetCustomAttribute<CategoryAttribute>();
 
+            if (categoryAttribute != null)
+            {
+                return categoryAttribute.Category;
+            }
+
+            return property.DeclaringType?.Name ?? "Default";
+        }
+        
         private int GetPropertyDisplayOrder(PropertyInfo property)
         {
-            return _propertyDefinitions.TryGetValue(property.PropertyType, out var definition) ? definition.DisplayOrder : int.MaxValue; // Or any other default value indicating the lowest priority in sorting.
+            var orderAttribute = property.GetCustomAttribute<DisplayOrderAttribute>();
+
+            return orderAttribute?.Order ?? int.MaxValue;
         }
     }
 }

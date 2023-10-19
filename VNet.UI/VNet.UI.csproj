@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\VNet.Configuration\VNet.Configuration\VNet.Configuration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Avalonia\Controls\PreferenceTabs.axaml.cs">
       <DependentUpon>PreferenceTabs.axaml</DependentUpon>
     </Compile>
