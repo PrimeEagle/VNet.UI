@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using Avalonia;
@@ -30,11 +31,14 @@ namespace VNet.UI.Avalonia.Controls
         private readonly Dictionary<Type, IPropertyDefinition> _propertyDefinitions = new();
         private readonly Dictionary<string, IPropertyEditor> _propertyEditors = new();
         private readonly StackPanel _propertyPanel = new() { Orientation = Orientation.Vertical };
+        private List<IGrouping<ICategoryDefinition, PropertyInfo>> _sortedCategorizedProperties = new List<IGrouping<ICategoryDefinition, PropertyInfo>>();
         private object? _currentObject;
         private List<PropertyInfo> _originalProperties;
 
 
         public bool Recursive { get; set; } = true;
+        public ObservableCollection<string> TabNames { get; set; }
+        public string SelectedTabName { get; set; } = string.Empty;
         public CategorizationType CategoryType { get; set; } = CategorizationType.ByClass;
         public CategorySortingMode CategorySorting { get; set; } = CategorySortingMode.None;
         public PropertySortingMode PropertySorting { get; set; } = PropertySortingMode.Alphabetical;
@@ -70,6 +74,17 @@ namespace VNet.UI.Avalonia.Controls
         {
             InitializeComponent();
             Content = new ScrollViewer { Content = _propertyPanel };
+            TabNames = new ObservableCollection<string>();
+
+            if (global::Avalonia.Controls.Design.IsDesignMode)
+            {
+                // Set the design-time data context
+                this.DataContext = new Design.PreferenceTabs();
+            }
+            else
+            {
+                this.DataContext = this;
+            }
         }
 
         public void RegisterPropertyDefinition(Type dataType, IPropertyDefinition definition)
@@ -194,6 +209,8 @@ namespace VNet.UI.Avalonia.Controls
                     AddEditorToPropertyGrid(editor, property);
                 }
             }
+
+            var _sortedCategorizedProperties = new ObservableCollection<string>(sortedCategorizedProperties.Select(x => x.Key.Name).ToList());
         }
         
         private void OnEditorValueChanged(object sender, EventArgs e)

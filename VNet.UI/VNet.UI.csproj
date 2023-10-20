@@ -1,30 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.0.5" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\VNet.Configuration\VNet.Configuration\VNet.Configuration.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\VNet.Configuration\VNet.Configuration\VNet.Configuration.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Avalonia\Controls\PreferenceTabs.axaml.cs">
+			<DependentUpon>PreferenceTabs.axaml</DependentUpon>
+		</Compile>
+		<Compile Update="Avalonia\Controls\PropertyGrid.axaml.cs">
+			<DependentUpon>PropertyGrid.axaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Avalonia\Controls\PreferenceTabs.axaml.cs">
-      <DependentUpon>PreferenceTabs.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Avalonia\Controls\PropertyGrid.axaml.cs">
-      <DependentUpon>PropertyGrid.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /e /y &quot;$(TargetPath)&quot; &quot;D:\My Code\VNet bin\&quot;" />
-  </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy /e /y &quot;$(TargetPath)&quot; &quot;D:\My Code\VNet bin\&quot;" />
+	</Target>
 
 </Project>
