@@ -1,26 +1,11 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="VNet.UI.Avalonia.Controls.PreferenceTabs">
-	<Border Background="{DynamicResource ThemeBackgroundBrush}">
-		<StackPanel>
-			<Grid Margin="4" ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-				<AutoCompleteBox Grid.Column="1" Grid.Row="0" Name="SearchBox" Watermark="Search settings..."/>
 
-				<Button Grid.Column="3" Grid.Row="1" Name="OkButton" Content="OK" Margin="5,0,0,0"/>
-				<Button Grid.Column="3" Grid.Row="2" Name="CancelButton" Content="Cancel" Margin="5,0,0,0"/>
-				<Button Grid.Column="3" Grid.Row="3" Name="PrevButton" Content="Prev" Margin="5,0,0,0"/>
-				<Button Grid.Column="3" Grid.Row="4" Name="NextButton" Content="Next" Margin="5,0,0,0"/>
-
-				<TabControl Grid.Column="1" Grid.Row="1" Name="DynamicTabControl"
-                            ItemsSource="{Binding TabNames}"
-                            SelectedItem="{Binding SelectedTabName}"
-                            >
-					<TabControl.DataTemplates>
-						<DataTemplate>
-						</DataTemplate>
-					</TabControl.DataTemplates>
-				</TabControl>
-			</Grid>
-		</StackPanel>
-	</Border>
+	<ScrollViewer>
+		<TabControl Name="TestTabControl"
+					ItemsSource="{Binding $parent[UserControl].TabNames}"
+                >
+		</TabControl>
+	</ScrollViewer>
 </UserControl>

@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Layout;
+using VNet.Configuration;
 using VNet.Configuration.Attributes;
 using VNet.UI.Avalonia.CategoryDefinitions;
 using VNet.UI.Avalonia.PropertyDefinitions;
@@ -34,11 +37,10 @@ namespace VNet.UI.Avalonia.Controls
         private List<IGrouping<ICategoryDefinition, PropertyInfo>> _sortedCategorizedProperties = new List<IGrouping<ICategoryDefinition, PropertyInfo>>();
         private object? _currentObject;
         private List<PropertyInfo> _originalProperties;
+        private HashSet<object> _visitedObjects = new HashSet<object>();
 
 
         public bool Recursive { get; set; } = true;
-        public ObservableCollection<string> TabNames { get; set; }
-        public string SelectedTabName { get; set; } = string.Empty;
         public CategorizationType CategoryType { get; set; } = CategorizationType.ByClass;
         public CategorySortingMode CategorySorting { get; set; } = CategorySortingMode.None;
         public PropertySortingMode PropertySorting { get; set; } = PropertySortingMode.Alphabetical;
@@ -70,21 +72,19 @@ namespace VNet.UI.Avalonia.Controls
             }
         }
 
+        public static readonly StyledProperty<ObservableCollection<string>> TabNamesProperty =
+            AvaloniaProperty.Register<PreferenceTabs, ObservableCollection<string>>(nameof(TabNames), null, true, BindingMode.TwoWay);
+
+        public ObservableCollection<string> TabNames
+        {
+            get => GetValue(TabNamesProperty);
+            set => SetValue(TabNamesProperty, value);
+        }
+
         public PreferenceTabs()
         {
             InitializeComponent();
-            Content = new ScrollViewer { Content = _propertyPanel };
-            TabNames = new ObservableCollection<string>();
-
-            if (global::Avalonia.Controls.Design.IsDesignMode)
-            {
-                // Set the design-time data context
-                this.DataContext = new Design.PreferenceTabs();
-            }
-            else
-            {
-                this.DataContext = this;
-            }
+           // Content = new ScrollViewer { Content = _propertyPanel };
         }
 
         public void RegisterPropertyDefinition(Type dataType, IPropertyDefinition definition)
@@ -96,13 +96,22 @@ namespace VNet.UI.Avalonia.Controls
         {
             _propertyPanel.Children.Clear();
 
+            // Get all properties of the object.
             var properties = objectToReflect.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+
+            // Clear the visited objects.
+            _visitedObjects.Clear();
 
             if (Recursive)
             {
+                // Start recursive property fetching, filtering out ISettings properties from being added to the list.
                 properties = GetPropertiesRecursively(objectToReflect, properties, 1);
             }
+
+            // Assign the list of properties that don't implement ISettings.
             _originalProperties = properties;
+
+            // Generate UI or other representations for the properties.
             GeneratePropertyItems(objectToReflect, properties);
         }
 
@@ -113,23 +122,54 @@ namespace VNet.UI.Avalonia.Controls
                 return properties;
             }
 
-            var allProperties = new List<PropertyInfo>(properties);
+            // Preventing recursion on the same object.
+            if (!_visitedObjects.Add(obj))
+            {
+                return new List<PropertyInfo>(); // Object already visited.
+            }
+
+            var allProperties = new List<PropertyInfo>();
 
             foreach (var property in properties)
             {
+                // Check if the property is a class but not a string (primitive types are already excluded).
                 var propertyType = property.PropertyType;
-                if (!propertyType.IsClass || propertyType.IsPrimitive) continue;
+                if (propertyType.IsPrimitive || propertyType == typeof(string)) continue;
 
+                // Get the property value.
                 var propertyValue = property.GetValue(obj);
-                if (propertyValue == null) continue;
-                var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+                if (propertyValue == null || _visitedObjects.Contains(propertyValue)) continue;
 
-                allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));
+                // If the property type implements any interface (excluding ISettings), we add it to the list but do not recurse into it.
+                bool isInterface = propertyType.GetInterfaces().Any();
+                bool isSettings = typeof(ISettings).IsAssignableFrom(propertyType);
+
+                if (isInterface && !isSettings)
+                {
+                    // It's a non-Settings interface; add it but don't recurse.
+                    allProperties.Add(property);
+                }
+                else if (!isSettings) // For non-Settings types, continue the recursion.
+                {
+                    allProperties.Add(property);
+
+                    // For recursion, get the properties of the current property.
+                    var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+                    allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));
+                }
+                // If it's ISettings, don't add it to the list but still recurse into it.
+                else if (isSettings)
+                {
+                    var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+                    allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));
+                }
             }
 
             return allProperties;
         }
-        
+
+
+
         private IEnumerable<PropertyInfo> GetSortedProperties(object targetObject)
         {
             return targetObject.GetType().GetProperties().OrderBy(p => p.Name);
