@@ -1,5 +1,5 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global
-namespace VNet.UI.Avalonia.CategoryDefinitions
+namespace VNet.UI.Avalonia.Common.CategoryDefinitions
 {
     public class CustomCategory : ICategoryDefinition
     {

@@ -1,4 +1,4 @@
-﻿namespace VNet.UI.Avalonia.CategoryDefinitions
+﻿namespace VNet.UI.Avalonia.Common.CategoryDefinitions
 {
     public class CategoryByClassName : ICategoryDefinition
     {

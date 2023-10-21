@@ -8,10 +8,11 @@ using Avalonia.Data;
 using Avalonia.Layout;
 using VNet.Configuration;
 using VNet.Configuration.Attributes;
-using VNet.UI.Avalonia.CategoryDefinitions;
-using VNet.UI.Avalonia.PropertyDefinitions;
-using VNet.UI.Avalonia.PropertyEditors;
-using VNet.UI.Avalonia.ReflectionStrategies;
+using VNet.UI.Avalonia.Common;
+using VNet.UI.Avalonia.Common.CategoryDefinitions;
+using VNet.UI.Avalonia.Common.PropertyDefinitions;
+using VNet.UI.Avalonia.Common.PropertyEditors;
+using VNet.UI.Avalonia.Common.ReflectionStrategies;
 
 // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 // ReSharper disable UnassignedGetOnlyAutoProperty

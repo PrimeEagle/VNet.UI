@@ -4,9 +4,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using VNet.Configuration.Attributes;
-using VNet.UI.Avalonia.CategoryDefinitions;
-using VNet.UI.Avalonia.PropertyDefinitions;
-using VNet.UI.Avalonia.PropertyEditors;
+using VNet.UI.Avalonia.Common;
+using VNet.UI.Avalonia.Common.CategoryDefinitions;
+using VNet.UI.Avalonia.Common.PropertyDefinitions;
+using VNet.UI.Avalonia.Common.PropertyEditors;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable MemberCanBePrivate.Global

@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 
-namespace VNet.UI.Avalonia.PropertyEditors;
+namespace VNet.UI.Avalonia.Common.PropertyEditors;
 
 public interface IPropertyEditor
 {

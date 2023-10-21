@@ -1,9 +1,9 @@
-﻿using VNet.UI.Avalonia.CategoryDefinitions;
-using VNet.UI.Avalonia.PropertyEditors;
-using VNet.UI.Avalonia.ReflectionStrategies;
+﻿using VNet.UI.Avalonia.Common.PropertyEditors;
+using VNet.UI.Avalonia.Common.ReflectionStrategies;
+
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
-namespace VNet.UI.Avalonia.PropertyDefinitions;
+namespace VNet.UI.Avalonia.Common.PropertyDefinitions;
 
 public class PropertyDefinition : IPropertyDefinition
 {

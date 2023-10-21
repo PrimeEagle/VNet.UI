@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace VNet.UI.Avalonia.ReflectionStrategies
+namespace VNet.UI.Avalonia.Common.ReflectionStrategies
 {
     public class EnumReflectionStrategy : IReflectionStrategy
     {

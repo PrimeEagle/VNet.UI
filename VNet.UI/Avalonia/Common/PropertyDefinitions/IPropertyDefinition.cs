@@ -1,7 +1,7 @@
-﻿using VNet.UI.Avalonia.PropertyEditors;
-using VNet.UI.Avalonia.ReflectionStrategies;
+﻿using VNet.UI.Avalonia.Common.PropertyEditors;
+using VNet.UI.Avalonia.Common.ReflectionStrategies;
 
-namespace VNet.UI.Avalonia.PropertyDefinitions;
+namespace VNet.UI.Avalonia.Common.PropertyDefinitions;
 
 public interface IPropertyDefinition
 {
