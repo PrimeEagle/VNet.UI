@@ -1,86 +1,73 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="VNet.UI.Avalonia.Controls.PreferenceTabs">
+<UserControl
+    x:Class="VNet.UI.Avalonia.Controls.PreferenceTabs"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Styles>
-        
+
         <Style Selector="Button">
             <Setter Property="Template">
                 <ControlTemplate>
-                    <Border Name="border" Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
-                            CornerRadius="5">
-                        <ContentPresenter Name="contentPresenter" Content="{TemplateBinding Content}"/>
+                    <Border
+                        Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="5">
+                        <ContentPresenter Name="contentPresenter" Content="{TemplateBinding Content}" />
                     </Border>
                 </ControlTemplate>
             </Setter>
         </Style>
 
         <Style Selector="Button:pointerover">
-            <Setter Property="BorderBrush" Value="#FFDD4812"/>
+            <Setter Property="BorderBrush" Value="#FFDD4812" />
         </Style>
     </UserControl.Styles>
 
-	<ScrollViewer>
-		<Grid
-            ShowGridLines="True"
-			ColumnDefinitions="100,400,400,100"
-			RowDefinitions="30,570"
-            Width="800"
+    <ScrollViewer>
+        <Grid
+            Width="1200"
             Height="400"
-        >
+            ColumnDefinitions="100,400,400,200,100"
+            RowDefinitions="30,570"
+            ShowGridLines="False">
             <AutoCompleteBox
                 Name="SearchBox"
-                Text="Search"
-                Grid.Column="1"
                 Grid.Row="0"
-            />
-			<Border
-                Grid.Column="0"
-                Grid.Row="1"
+                Grid.Column="3"
                 Grid.ColumnSpan="2"
-                Background="Gray"
-                BorderBrush="Black"
-                BorderThickness="1"
-                CornerRadius="3"
-                Padding="2"
-                >
-				<TabControl
-							Name="MainTabs"
-							TabStripPlacement="Left"
-							ItemsSource="{Binding $parent[UserControl].TabNames}"
-                >
-				</TabControl>
-			</Border>
+                Text="Search" />
             <Border
-                Grid.Column="2"
                 Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="4"
+                Padding="2"
                 Background="Gray"
                 BorderBrush="Black"
                 BorderThickness="1"
-                CornerRadius="3"
-                Padding="2">
+                CornerRadius="3">
+                <TabControl
+                    Name="MainTabs"
+                    ItemsSource="{Binding $parent[UserControl].TabNames}"
+                    TabStripPlacement="Left" />
+            </Border>
+            <Border
+                Grid.Row="1"
+                Grid.Column="4"
+                Padding="2"
+                Background="Gray"
+                BorderBrush="Black"
+                BorderThickness="1"
+                CornerRadius="3">
 
                 <StackPanel>
-                    <Button
-                        Name="ButtonOkay"
-                        Content="OK"
-                    />
-                    <Button
-                        Name="ButtonCancel"
-                        Content="Cancel"
-                    />
-                    <Button
-                        Name="ButtonNext"
-                        Content="Next"
-                    />
-                    <Button
-                        Name="ButtonPrev"
-                        Content="Prev"
-                    />
+                    <Button Name="ButtonOkay" Content="OK" />
+                    <Button Name="ButtonCancel" Content="Cancel" />
+                    <Button Name="ButtonNext" Content="Next" />
+                    <Button Name="ButtonPrev" Content="Prev" />
                 </StackPanel>
             </Border>
-		</Grid>
-	</ScrollViewer>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
