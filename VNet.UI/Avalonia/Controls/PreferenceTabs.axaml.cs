@@ -37,13 +37,12 @@ namespace VNet.UI.Avalonia.Controls
         private readonly Dictionary<Type, IPropertyDefinition> _propertyDefinitions = new();
         private readonly Dictionary<string, IPropertyEditor> _propertyEditors = new();
         private readonly StackPanel _propertyPanel = new() { Orientation = Orientation.Vertical };
-        private List<IGrouping<ICategoryDefinition, PropertyInfo>> _sortedCategorizedProperties = new List<IGrouping<ICategoryDefinition, PropertyInfo>>();
+        //private List<IGrouping<ICategoryDefinition, PropertyInfo>> _sortedCategorizedProperties = new List<IGrouping<ICategoryDefinition, PropertyInfo>>();
         private object? _currentObject;
         private List<PropertyInfo> _originalProperties;
-        private HashSet<object> _visitedObjects = new HashSet<object>();
+        private readonly HashSet<object> _visitedObjects = new();
 
 
-        public bool Recursive { get; set; } = true;
         public CategorizationType CategoryType { get; set; } = CategorizationType.ByClass;
         public CategorySortingMode CategorySorting { get; set; } = CategorySortingMode.None;
         public PropertySortingMode PropertySorting { get; set; } = PropertySortingMode.Alphabetical;
@@ -93,6 +92,15 @@ namespace VNet.UI.Avalonia.Controls
             set => SetValue(IgnoreAttributeProperty, value);
         }
 
+        public static readonly StyledProperty<bool> RecursiveProperty =
+            AvaloniaProperty.Register<PreferenceTabs, bool>(nameof(Recursive), false, true, BindingMode.TwoWay);
+
+        public bool Recursive
+        {
+            get => GetValue(RecursiveProperty);
+            set => SetValue(RecursiveProperty, value);
+        }
+
         public PreferenceTabs()
         {
             InitializeComponent();
@@ -107,23 +115,15 @@ namespace VNet.UI.Avalonia.Controls
         public void ReflectObject(object objectToReflect)
         {
             _propertyPanel.Children.Clear();
-
-            // Get all properties of the object.
             var properties = objectToReflect.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
-
-            // Clear the visited objects.
             _visitedObjects.Clear();
 
             if (Recursive)
             {
-                // Start recursive property fetching, filtering out ISettings properties from being added to the list.
                 properties = GetPropertiesRecursively(objectToReflect, properties, 1);
             }
 
-            // Assign the list of properties that don't implement ISettings.
             _originalProperties = properties;
-
-            // Generate UI or other representations for the properties.
             GeneratePropertyItems(objectToReflect, properties);
         }
 
