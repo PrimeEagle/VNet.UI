@@ -1,7 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Security.Principal;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -82,6 +84,15 @@ namespace VNet.UI.Avalonia.Controls
             set => SetValue(TabNamesProperty, value);
         }
 
+        public static readonly StyledProperty<string?> IgnoreAttributeProperty =
+            AvaloniaProperty.Register<PreferenceTabs, string>(nameof(IgnoreAttribute), null, true, BindingMode.TwoWay);
+
+        public string IgnoreAttribute
+        {
+            get => GetValue(IgnoreAttributeProperty);
+            set => SetValue(IgnoreAttributeProperty, value);
+        }
+
         public PreferenceTabs()
         {
             InitializeComponent();
@@ -133,33 +144,27 @@ namespace VNet.UI.Avalonia.Controls
 
             foreach (var property in properties)
             {
-                // Check if the property is a class but not a string (primitive types are already excluded).
                 var propertyType = property.PropertyType;
                 if (propertyType.IsPrimitive || propertyType == typeof(string)) continue;
 
-                // Get the property value.
                 var propertyValue = property.GetValue(obj);
                 if (propertyValue == null || _visitedObjects.Contains(propertyValue)) continue;
 
-                // If the property type implements any interface (excluding ISettings), we add it to the list but do not recurse into it.
-                bool isInterface = propertyType.GetInterfaces().Any();
-                bool isSettings = typeof(ISettings).IsAssignableFrom(propertyType);
-
-                if (isInterface && !isSettings)
+                var isSetting = true;
+                if (!string.IsNullOrEmpty(IgnoreAttribute))
                 {
-                    // It's a non-Settings interface; add it but don't recurse.
+                    var ignoreType = Type.GetType(IgnoreAttribute);
+                    if (ignoreType is not null)
+                    {
+                        isSetting = !Attribute.IsDefined(property, ignoreType);
+                    }
+                }
+
+                if (isSetting) // For settings, add it but don't recurse into it
+                {
                     allProperties.Add(property);
                 }
-                else if (!isSettings) // For non-Settings types, continue the recursion.
-                {
-                    allProperties.Add(property);
-
-                    // For recursion, get the properties of the current property.
-                    var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
-                    allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));
-                }
-                // If it's ISettings, don't add it to the list but still recurse into it.
-                else if (isSettings)
+                else          // For non-settings, don't add it but recurse into it
                 {
                     var subProperties = propertyValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
                     allProperties.AddRange(GetPropertiesRecursively(propertyValue, subProperties, currentDepth + 1));

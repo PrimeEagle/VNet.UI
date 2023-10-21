@@ -3,9 +3,23 @@
              x:Class="VNet.UI.Avalonia.Controls.PreferenceTabs">
 
 	<ScrollViewer>
-		<TabControl Name="TestTabControl"
-					ItemsSource="{Binding $parent[UserControl].TabNames}"
-                >
-		</TabControl>
+        <Grid>
+            <AutoCompleteBox></AutoCompleteBox>
+            <TabControl Name="TestTabControl"
+                        TabStripPlacement="Left"
+                        ItemsSource="{Binding $parent[UserControl].TabNames}"
+            >
+				<TabControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                    </ItemsPanelTemplate>
+                </TabControl.ItemsPanel>
+            </TabControl>
+            <StackPanel>
+                <Button />
+                <Button />
+                <Button />
+                <Button />
+            </StackPanel>
+        </Grid>
 	</ScrollViewer>
 </UserControl>
