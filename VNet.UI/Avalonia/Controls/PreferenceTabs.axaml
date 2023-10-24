@@ -3,43 +3,93 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <UserControl.Styles>
-
-        <Style Selector="Button">
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <Border
+	<UserControl.Styles>
+		<Style Selector="Button">
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="Foreground" Value="#CCCCCC" />
+			<Setter Property="Background" Value="DimGray" />
+			<Setter Property="Width" Value="100" />
+			<Setter Property="Height" Value="25" />
+			<Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+			<Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border
                         Name="border"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="5">
-                        <ContentPresenter Name="contentPresenter" Content="{TemplateBinding Content}" />
-                    </Border>
-                </ControlTemplate>
-            </Setter>
-        </Style>
+						<ContentPresenter Name="contentPresenter" Content="{TemplateBinding Content}" />
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
 
-        <Style Selector="Button:pointerover">
-            <Setter Property="BorderBrush" Value="#FFDD4812" />
-        </Style>
-    </UserControl.Styles>
+		<Style Selector="Button:pointerover">
+			<Setter Property="BorderBrush" Value="DimGray" />
+		</Style>
 
-    <ScrollViewer>
-        <Grid
+		<Style Selector="TabControl">
+			<Setter Property="Background" Value="DimGray" />
+			<Setter Property="Foreground" Value="Black" />
+		</Style>
+
+		<Style Selector="TabControl WrapPanel">
+			<Setter Property="Background" Value="DimGray" />
+		</Style>
+
+		<Style Selector="TabItem">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="Width" Value="75" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="Background" Value="#333333" />
+			<Setter Property="Foreground" Value="Black" />
+			<Setter Property="Margin" Value="0 0 0 0" />
+			<Setter Property="Padding" Value="3 0" />
+		</Style>
+
+		<Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#CCCCCC" />
+		</Style>
+
+		<Style Selector="TabItem:focus">
+			<Setter Property="Foreground" Value="#CCCCCC" />
+			<Setter Property="Margin" Value="0 0 0 0" />
+			<Setter Property="Padding" Value="10 0" />
+		</Style>
+
+		<Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#CCCCCC" />
+		</Style>
+
+		<Style Selector="TabItem:selected">
+			<Setter Property="Foreground" Value="#CCCCCC" />
+			<Setter Property="Margin" Value="0 0 0 0" />
+			<Setter Property="Padding" Value="10 0" />
+		</Style>
+
+		<Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="DimGray" />
+		</Style>
+	</UserControl.Styles>
+
+	<ScrollViewer>
+		<Grid
             Width="1200"
             Height="400"
             ColumnDefinitions="100,400,400,200,100"
-            RowDefinitions="30,570"
+            RowDefinitions="30,50,50,50,50,550"
             ShowGridLines="False">
-            <AutoCompleteBox
+			<AutoCompleteBox
                 Name="SearchBox"
                 Grid.Row="0"
                 Grid.Column="3"
                 Grid.ColumnSpan="2"
                 Text="Search" />
-            <Border
+			<Border
                 Grid.Row="1"
+                Grid.RowSpan="5"
                 Grid.Column="0"
                 Grid.ColumnSpan="4"
                 Padding="2"
@@ -47,27 +97,43 @@
                 BorderBrush="Black"
                 BorderThickness="1"
                 CornerRadius="3">
-                <TabControl
+				<TabControl
                     Name="MainTabs"
                     ItemsSource="{Binding $parent[UserControl].TabNames}"
                     TabStripPlacement="Left" />
-            </Border>
-            <Border
+			</Border>
+			<Border
                 Grid.Row="1"
+                Grid.RowSpan="5"
                 Grid.Column="4"
                 Padding="2"
                 Background="Gray"
                 BorderBrush="Black"
                 BorderThickness="1"
                 CornerRadius="3">
-
-                <StackPanel>
-                    <Button Name="ButtonOkay" Content="OK" />
-                    <Button Name="ButtonCancel" Content="Cancel" />
-                    <Button Name="ButtonNext" Content="Next" />
-                    <Button Name="ButtonPrev" Content="Prev" />
-                </StackPanel>
-            </Border>
-        </Grid>
-    </ScrollViewer>
+				<StackPanel Spacing="5">
+					<Button Name="ButtonOkay" HorizontalAlignment="Center">
+						<TextBlock Text="OK"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+					</Button>
+					<Button Name="ButtonCancel" HorizontalAlignment="Center">
+						<TextBlock Text="Cancel"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+					</Button>
+					<Button Name="ButtonNext" HorizontalAlignment="Center">
+						<TextBlock Text="Next"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"/>
+					</Button>
+					<Button Name="ButtonPrev" HorizontalAlignment="Center">
+						<TextBlock Text="Prev"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"/>
+					</Button>
+				</StackPanel>
+			</Border>
+		</Grid>
+	</ScrollViewer>
 </UserControl>

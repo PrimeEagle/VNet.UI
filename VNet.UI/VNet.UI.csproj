@@ -7,6 +7,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.0.5" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,6 +22,10 @@
 		<Compile Update="Avalonia\Controls\PropertyGrid.axaml.cs">
 			<DependentUpon>PropertyGrid.axaml</DependentUpon>
 		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Avalonia\Templates\" />
 	</ItemGroup>
 
 
