@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Microsoft.Extensions.Options;
 
 namespace VNet.UI.Avalonia.Common.Dialogs
 {
@@ -7,10 +8,10 @@ namespace VNet.UI.Avalonia.Common.Dialogs
         private readonly Window _parentWindow;
         private readonly UiEffectManager _uiEffectManager;
 
-        public WindowContext(Window parentWindow)
+        public WindowContext(Window parentWindow, DialogServiceOptions options)
         {
             _parentWindow = parentWindow;
-            _uiEffectManager = new UiEffectManager(parentWindow);
+            _uiEffectManager = new UiEffectManager(parentWindow, options);
         }
 
         public void ApplyEffects()

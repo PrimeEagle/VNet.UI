@@ -9,6 +9,7 @@
 		<PackageReference Include="Avalonia" Version="11.0.5" />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>

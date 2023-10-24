@@ -1,5 +1,7 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+// ReSharper disable ConvertToAutoProperty
 
 namespace VNet.UI.Avalonia.Common.Dialogs
 {
@@ -7,10 +9,14 @@ namespace VNet.UI.Avalonia.Common.Dialogs
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly Dictionary<Type, Type> _dialogMappings = new();
+        private readonly DialogServiceOptions _options;
 
-        public DialogService(IServiceProvider serviceProvider)
+        public DialogServiceOptions Options => _options;
+
+        public DialogService(IServiceProvider serviceProvider, IOptions<DialogServiceOptions> options)
         {
             _serviceProvider = serviceProvider;
+            _options = options.Value;
         }
 
         public void RegisterDialog<TViewModel, TView>()
@@ -34,29 +40,20 @@ namespace VNet.UI.Avalonia.Common.Dialogs
             var dialog = (Window)ActivatorUtilities.CreateInstance(_serviceProvider, viewType);
             dialog.DataContext = viewModel;
 
+            // ReSharper disable once SuspiciousTypeConversion.Global
             if (dialog is IDialogWindow dialogWindow)
             {
                 dialogWindow.InitializeComponent();
             }
-
             
-
             var tcs = new TaskCompletionSource<DialogResult<TViewModel>>();
-
             viewModel.Completed += CompletedHandler;
 
             try
             {
-                // Start showing the dialog (but don't await it yet)
                 var showDialogTask = dialog.ShowDialog(parentContext.GetParentWindow());
-
-                // Apply the darkening effect to the parent
                 parentContext.ApplyEffects();
-
-                // Allow the UI to update
-                await Task.Delay(100); // or more, you need to test the appropriate amount of delay
-
-                // Now, wait for the dialog
+                await Task.Delay(100);
                 await showDialogTask;
             }
             catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
@@ -66,8 +63,6 @@ namespace VNet.UI.Avalonia.Common.Dialogs
             finally
             {
                 viewModel.Completed -= CompletedHandler;
-
-                // After the dialog work is done, we revert the effects using the same context.
                 parentContext.RevertEffects();
             }
 

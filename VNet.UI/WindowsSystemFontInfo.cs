@@ -31,7 +31,7 @@
             public int lfOrientation;
             public int lfWeight;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-            public string lfFaceName; // This specifies the name of the font face.
+            public string lfFaceName;
         }
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
@@ -53,10 +53,10 @@
                     // Convert the lfHeight, which is in logical units, to points
                     double points = logFont.lfHeight * 72.0 / logpixelsy;
 
-                    return (logFont.lfFaceName, Math.Abs(points));  // Abs to ensure the value is non-negative
+                    return (logFont.lfFaceName, Math.Abs(points));
                 }
 
-                return (string.Empty, 0);  // You might want to handle this case differently
+                return (string.Empty, 0);
             }
             finally
             {
