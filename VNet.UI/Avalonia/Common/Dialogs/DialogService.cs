@@ -1,7 +1,8 @@
 ﻿using Avalonia.Controls;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
 // ReSharper disable ConvertToAutoProperty
+
 
 namespace VNet.UI.Avalonia.Common.Dialogs
 {
@@ -37,7 +38,9 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            var dialog = (Window)ActivatorUtilities.CreateInstance(_serviceProvider, viewType);
+            if (Activator.CreateInstance(viewType) is not Window dialog) 
+                throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
+
             dialog.DataContext = viewModel;
 
             // ReSharper disable once SuspiciousTypeConversion.Global
