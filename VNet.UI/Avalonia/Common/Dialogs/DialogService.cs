@@ -8,15 +8,13 @@ namespace VNet.UI.Avalonia.Common.Dialogs
 {
     public class DialogService : IDialogService
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly Dictionary<Type, Type> _dialogMappings = new();
         private readonly DialogServiceOptions _options;
 
         public DialogServiceOptions Options => _options;
 
-        public DialogService(IServiceProvider serviceProvider, IOptions<DialogServiceOptions> options)
+        public DialogService(IOptions<DialogServiceOptions> options)
         {
-            _serviceProvider = serviceProvider;
             _options = options.Value;
         }
 
