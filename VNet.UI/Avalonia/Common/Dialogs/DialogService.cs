@@ -1,5 +1,7 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.Options;
+using System.Reflection;
+#pragma warning disable CA2208
 
 // ReSharper disable ConvertToAutoProperty
 
@@ -10,12 +12,14 @@ namespace VNet.UI.Avalonia.Common.Dialogs
     {
         private readonly Dictionary<Type, Type> _dialogMappings = new();
         private readonly DialogServiceOptions _options;
+        private readonly IViewService _viewService;
 
         public DialogServiceOptions Options => _options;
 
-        public DialogService(IOptions<DialogServiceOptions> options)
+        public DialogService(IOptions<DialogServiceOptions> options, IViewService viewService)
         {
             _options = options.Value;
+            _viewService = viewService;
         }
 
         public void RegisterDialog<TViewModel, TView>()
@@ -29,15 +33,18 @@ namespace VNet.UI.Avalonia.Common.Dialogs
         }
 
         public async Task<DialogResult<TViewModel>> ShowDialogAsync<TViewModel>(TViewModel viewModel, IWindowContext parentContext)
-            where TViewModel : class, IDialogViewModel, new()
+            where TViewModel : class, IDialogViewModel
         {
             if (!_dialogMappings.TryGetValue(typeof(TViewModel), out var viewType))
             {
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            if (Activator.CreateInstance(viewType) is not Window dialog) 
-                throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
+            var method = typeof(IViewService).GetMethod(nameof(IViewService.GetView));
+            var generic = method?.MakeGenericMethod(viewType);
+            var viewInstance = generic?.Invoke(_viewService, null);
+
+            if(viewInstance is not Window dialog) throw new ArgumentNullException();
 
             dialog.DataContext = viewModel;
 
