@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.Options;
-#pragma warning disable CA2208
 
+#pragma warning disable CA2208
 // ReSharper disable ConvertToAutoProperty
 
 
