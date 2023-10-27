@@ -11,14 +11,14 @@ namespace VNet.UI.Avalonia.Common.Dialogs
     {
         private readonly Dictionary<Type, Type> _dialogMappings = new();
         private readonly DialogServiceOptions _options;
-        private readonly IViewService _viewService;
+        private readonly IViewFactory _viewFactory;
 
         public DialogServiceOptions Options => _options;
 
-        public DialogService(IOptions<DialogServiceOptions> options, IViewService viewService)
+        public DialogService(IOptions<DialogServiceOptions> options, IViewFactory viewFactory)
         {
             _options = options.Value;
-            _viewService = viewService;
+            _viewFactory = viewFactory;
         }
 
         public void RegisterDialog<TViewModel, TView>()
@@ -39,9 +39,9 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            var method = typeof(IViewService).GetMethod(nameof(IViewService.GetView));
+            var method = typeof(IViewFactory).GetMethod(nameof(IViewFactory.Create));
             var generic = method?.MakeGenericMethod(viewType);
-            var viewInstance = generic?.Invoke(_viewService, null);
+            var viewInstance = generic?.Invoke(_viewFactory, null);
 
             if(viewInstance is not Window dialog) throw new ArgumentNullException();
 
