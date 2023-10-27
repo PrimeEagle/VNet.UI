@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.Options;
+using VNet.UI.Services;
 
 #pragma warning disable CA2208
 // ReSharper disable ConvertToAutoProperty
@@ -11,11 +12,11 @@ namespace VNet.UI.Avalonia.Common.Dialogs
     {
         private readonly Dictionary<Type, Type> _dialogMappings = new();
         private readonly DialogServiceOptions _options;
-        private readonly IViewFactory _viewFactory;
+        private readonly IViewFactoryService _viewFactory;
 
         public DialogServiceOptions Options => _options;
 
-        public DialogService(IOptions<DialogServiceOptions> options, IViewFactory viewFactory)
+        public DialogService(IOptions<DialogServiceOptions> options, IViewFactoryService viewFactory)
         {
             _options = options.Value;
             _viewFactory = viewFactory;
@@ -39,7 +40,7 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            var method = typeof(IViewFactory).GetMethod(nameof(IViewFactory.Create));
+            var method = typeof(IViewFactoryService).GetMethod(nameof(IViewFactoryService.Create));
             var generic = method?.MakeGenericMethod(viewType);
             var viewInstance = generic?.Invoke(_viewFactory, null);
 
