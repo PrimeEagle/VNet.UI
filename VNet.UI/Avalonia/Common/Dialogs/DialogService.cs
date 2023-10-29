@@ -40,20 +40,14 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            var method = typeof(IViewFactoryService).GetMethod(nameof(IViewFactoryService.Create));
-            var generic = method?.MakeGenericMethod(viewType);
-            var viewInstance = generic?.Invoke(_viewFactory, null);
+            // Check if viewType is a Window and has a constructor that accepts a TViewModel.
+            var constructor = viewType.GetConstructor(new[] { typeof(TViewModel) }) ?? throw new InvalidOperationException($"The view {viewType} does not have a constructor that accepts a parameter of type {typeof(TViewModel)}.");
 
-            if(viewInstance is not Window dialog) throw new ArgumentNullException();
+            // Create an instance of the view, passing the view model to the constructor.
+            var dialog = (Window) constructor.Invoke(new object[] {viewModel});
 
-            dialog.DataContext = viewModel;
+            if (dialog == null) throw new ArgumentNullException();
 
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            if (dialog is IDialogWindow dialogWindow)
-            {
-                dialogWindow.InitializeComponent();
-            }
-            
             var tcs = new TaskCompletionSource<DialogResult<TViewModel>>();
             viewModel.Completed += CompletedHandler;
 
@@ -78,7 +72,7 @@ namespace VNet.UI.Avalonia.Common.Dialogs
 
             void CompletedHandler(object? sender, DialogResult<IDialogViewModel> result)
             {
-                tcs.SetResult(new DialogResult<TViewModel>(result.ButtonResult, (TViewModel)result.ViewModel));
+                tcs.SetResult(new DialogResult<TViewModel>(result.ButtonResult, (TViewModel) result.ViewModel));
             }
         }
     }

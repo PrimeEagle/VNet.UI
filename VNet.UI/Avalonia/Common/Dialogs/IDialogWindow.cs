@@ -2,6 +2,6 @@
 {
     public interface IDialogWindow
     {
-        public void InitializeComponent();
+        public void Initialize();
     }
 }
