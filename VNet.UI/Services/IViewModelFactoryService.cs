@@ -2,6 +2,7 @@
 {
     public interface IViewModelFactoryService
     {
-        T Create<T>() where T : class;
+        T Create<T>() where T : IViewModel;
+        Task<T> CreateAsync<T>() where T : IViewModel;
     }
 }
