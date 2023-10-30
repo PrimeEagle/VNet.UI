@@ -3,8 +3,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VNet.UI.Services;
 
-#pragma warning disable CA2208
+// ReSharper disable NotAccessedField.Local
 // ReSharper disable ConvertToAutoProperty
+#pragma warning disable IDE0052
+#pragma warning disable CA2208
 
 
 namespace VNet.UI.Avalonia.Common.Dialogs
@@ -44,14 +46,8 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 throw new InvalidOperationException($"No dialog type was registered for the view model type {typeof(TViewModel).FullName}");
             }
 
-            // Check if viewType is a Window and has a constructor that accepts a TViewModel.
             var constructor = viewType.GetConstructor(new[] { typeof(TViewModel) }) ?? throw new InvalidOperationException($"The view {viewType} does not have a constructor that accepts a parameter of type {typeof(TViewModel)}.");
-
-            // Create an instance of the view, passing the view model to the constructor.
-            var dialog = (Window) constructor.Invoke(new object[] {viewModel});
-
-            if (dialog == null) throw new ArgumentNullException();
-
+            var dialog = (Window) constructor.Invoke(new object[] {viewModel}) ?? throw new ArgumentNullException();
             var tcs = new TaskCompletionSource<DialogResult<TViewModel>>();
             viewModel.Completed += CompletedHandler;
 
@@ -59,8 +55,8 @@ namespace VNet.UI.Avalonia.Common.Dialogs
             {
                 var showDialogTask = dialog.ShowDialog(parentContext.GetParentWindow());
                 parentContext.ApplyEffects();
-                await Task.Delay(100);
-                await showDialogTask;
+                await Task.Delay(100).ConfigureAwait(false);
+                await showDialogTask.ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
             {
@@ -73,7 +69,7 @@ namespace VNet.UI.Avalonia.Common.Dialogs
                 parentContext.RevertEffects();
             }
 
-            return await tcs.Task;
+            return await tcs.Task.ConfigureAwait(false);
 
             void CompletedHandler(object? sender, DialogResult<IDialogViewModel> result)
             {
