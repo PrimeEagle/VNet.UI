@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VNet.UI.Services;
 
@@ -13,13 +14,16 @@ namespace VNet.UI.Avalonia.Common.Dialogs
         private readonly Dictionary<Type, Type> _dialogMappings = new();
         private readonly DialogServiceOptions _options;
         private readonly IViewFactoryService _viewFactory;
+        private readonly ILogger<DialogService> _loggerService;
+
 
         public DialogServiceOptions Options => _options;
 
-        public DialogService(IOptions<DialogServiceOptions> options, IViewFactoryService viewFactory)
+        public DialogService(IOptions<DialogServiceOptions> options, IViewFactoryService viewFactory, ILogger<DialogService> logger)
         {
             _options = options.Value;
             _viewFactory = viewFactory;
+            _loggerService = logger;
         }
 
         public void RegisterDialog<TViewModel, TView>()
@@ -60,6 +64,7 @@ namespace VNet.UI.Avalonia.Common.Dialogs
             }
             catch (Exception ex) when (ex is OperationCanceledException or TimeoutException)
             {
+                _loggerService.LogError(ex, "There was an error showing the dialog.");
                 throw;
             }
             finally
