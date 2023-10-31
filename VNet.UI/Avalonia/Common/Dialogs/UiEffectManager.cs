@@ -1,8 +1,8 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
-using Microsoft.Extensions.Options;
-// ReSharper disable SuggestBaseTypeForParameterInConstructor
+using Avalonia.Threading;
 
+// ReSharper disable SuggestBaseTypeForParameterInConstructor
 // ReSharper disable SuggestBaseTypeForParameter
 // ReSharper disable MemberCanBeMadeStatic.Local
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -81,13 +81,17 @@ namespace VNet.UI.Avalonia.Common.Dialogs
 
         public async Task RevertEffects()
         {
-            await FadeOut(_overlay, _parentContent);
-            _parentContent.Effect = null;
-            if (_parentContent is Panel parentPanel)
+            await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                parentPanel.Children.Remove(_overlay);
-            }
+                await FadeOut(_overlay, _parentContent);
+                _parentContent.Effect = null;
+                if (_parentContent is Panel parentPanel)
+                {
+                    parentPanel.Children.Remove(_overlay);
+                }
+            });
         }
+
 
         private async Task FadeOut(Border border, Control originalContent)
         {
