@@ -30,7 +30,7 @@ namespace VNet.UI.Avalonia.Common.Dialogs
 
         public async void ApplyEffects()
         {
-            if (!_options.EnableEffects) return;
+            if (!_options.EnableDialogEffects) return;
             
             _overlay = new Border
             {
@@ -50,14 +50,14 @@ namespace VNet.UI.Avalonia.Common.Dialogs
         private async Task FadeIn(Border overlay, Control originalContent)
         {
             const int animationSteps = 5;
-            var targetOpacity = _options.Opacity;
-            var targetBlurRadius = _options.BlurRadius;
-            var animationDuration = _options.AnimationDuration;
+            var targetOpacity = _options.DialogEffectOpacity;
+            var targetBlurRadius = _options.DialogEffectBlurRadius;
+            var animationDuration = _options.DialogEffectAnimationDuration;
 
-            if (!_options.AnimateEffects)
+            if (!_options.EnableDialogEffectAnimation)
             {
-                if (_options.EnableParentDarkening) overlay.Opacity = targetOpacity;
-                if (_options.EnableParentBlurring) ((BlurEffect)originalContent.Effect).Radius = targetBlurRadius;
+                if (_options.EnableDarkenEffect) overlay.Opacity = targetOpacity;
+                if (_options.EnableBlurEffect) ((BlurEffect)originalContent.Effect).Radius = targetBlurRadius;
                 return;
             }
 
@@ -94,12 +94,12 @@ namespace VNet.UI.Avalonia.Common.Dialogs
             const int animationSteps = 5;
             const int targetOpacity = 0;
             const int targetBlurRadius = 0;
-            var animationDuration = _options.AnimationDuration;
+            var animationDuration = _options.DialogEffectAnimationDuration;
 
-            if (!_options.AnimateEffects)
+            if (!_options.EnableDialogEffectAnimation)
             {
-                if(_options.EnableParentDarkening) border.Opacity = targetOpacity;
-                if(_options.EnableParentBlurring) ((BlurEffect)originalContent.Effect).Radius = targetBlurRadius;
+                if(_options.EnableDarkenEffect) border.Opacity = targetOpacity;
+                if(_options.EnableBlurEffect) ((BlurEffect)originalContent.Effect).Radius = targetBlurRadius;
                 return;
             }
 
