@@ -3,6 +3,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -10,7 +11,6 @@
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
-		<PackageReference Include="VNet.Configuration" Version="1.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -21,14 +21,19 @@
 			<DependentUpon>PropertyGrid.axaml</DependentUpon>
 		</Compile>
 	</ItemGroup>
+	
+	<PropertyGroup Condition="'$(ServerBuild)' != ''">
+	</PropertyGroup>
 
-	<ItemGroup>
-	  <Folder Include="Avalonia\Templates\" />
+	<ItemGroup Condition="'$(ServerBuild)' != ''">
+		<PackageReference Include="VNet.Configuration" Version="1.0.0" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(ServerBuild)' == ''">
+		<ProjectReference Include="..\..\VNet.Configuration\VNet.Configuration\VNet.Configuration.csproj" />
+	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(ServerBuild)' == ''">
 		<Exec Command="xcopy /e /y &quot;$(TargetPath)&quot; &quot;D:\My Code\VNet bin\&quot;" />
 	</Target>
-
 </Project>
