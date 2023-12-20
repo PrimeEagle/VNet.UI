@@ -6,6 +6,27 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PackageId>VNet.UI</PackageId>
+		<Authors>PrimeEagle</Authors>
+		<Product>VNet.UI</Product>
+		<Description>Class library for user interface functions, focusing mainly on MVVM architecture and Avalonia.</Description>
+		<PackageTags>dotnet;dotnet-core;dotnet-library;ui;user-interface;avalonia;mvvm</PackageTags>
+		<PackageReleaseNotes>Add NuGet metadata.</PackageReleaseNotes>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/PrimeEagle/VNet.UI</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/PrimeEagle/VNet.UI</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyName>VNet.UI</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="icon.png" Pack="true" PackagePath="" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.0.6" />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
