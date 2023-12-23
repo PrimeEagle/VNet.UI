@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(ServerBuild)' != ''">
   </PropertyGroup>
   <ItemGroup Condition="'$(ServerBuild)' != ''">
-    <PackageReference Include="VNet.Configuration" Version="1.0.0" />
+    <PackageReference Include="VNet.Configuration" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(ServerBuild)' == ''">
     <ProjectReference Include="..\..\VNet.Configuration\VNet.Configuration\VNet.Configuration.csproj" />
